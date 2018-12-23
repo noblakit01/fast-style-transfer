@@ -1,4 +1,9 @@
+from __future__ import print_function
+import sys
+sys.path.insert(0, 'src')
 import coremltools
+from argparse import ArgumentParser
+from utils import exists
 
 def convert_multiarray_output_to_image(spec, feature_name, is_bgr=False):  
     """  
@@ -39,9 +44,27 @@ def convert_multiarray_output_to_image(spec, feature_name, is_bgr=False):
         output.type.imageType.width = width  
         output.type.imageType.height = height  
 
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument('--mlmodel-output', type=str,
+                        dest='mlmodel_output',
+                        help='mlmodel output name',
+                        metavar='MLMODEL_OUTPUT', required=True)
 
-model = coremltools.models.MLModel('../models/mlmodel/temp.mlmodel')
-spec = model.get_spec()  
-convert_multiarray_output_to_image(spec,'add_37__0',is_bgr=False)  
-newModel = coremltools.models.MLModel(spec)  
-newModel.save('../models/mlmodel/la_muse.mlmodel')
+    return parser
+
+##def check_opts(opts):
+
+def main():
+    parser = build_parser()
+    opts = parser.parse_args()
+    #check_opts(opts)
+
+    model = coremltools.models.MLModel('../models/mlmodel/temp.mlmodel')
+    spec = model.get_spec()
+    convert_multiarray_output_to_image(spec,'add_37__0',is_bgr=False)
+    newModel = coremltools.models.MLModel(spec)
+    newModel.save('../models/mlmodel/' + opts.mlmodel_output + '.mlmodel')
+
+if __name__ == '__main__':
+    main()
