@@ -100,8 +100,10 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
                 ########## add this for pre-trained models ###########
+                a = ckpt.model_checkpoint_path.index('.ckpt')
+                pb_name = ckpt.model_checkpoint_path[:a].replace('/ckpt/', '/pb/') + '.pb'
                 frozen_graph_def = tf.graph_util.convert_variables_to_constants(sess,sess.graph_def,[param_name])
-                with open('output_graph.pb', 'wb') as f:
+                with open(pb_name, 'wb') as f:
                     f.write(frozen_graph_def.SerializeToString())
                 #####################################################
             else:
@@ -109,8 +111,10 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
         else:
             saver.restore(sess, checkpoint_dir)
             ########## add this for custom models ###########
+            a = checkpoint_dir.index('.ckpt')
+            pb_name = checkpoint_dir[:a].replace('/ckpt/', '/pb/') + '.pb'
             frozen_graph_def = tf.graph_util.convert_variables_to_constants(sess,sess.graph_def,[param_name])
-            with open('output_graph.pb', 'wb') as f:
+            with open(pb_name, 'wb') as f:
                 f.write(frozen_graph_def.SerializeToString())
             #####################################################
 
