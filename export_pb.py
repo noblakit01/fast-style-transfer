@@ -91,9 +91,9 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
                                          name='img_placeholder')
 
         preds = transform.net(img_placeholder)
-        a = test.index('Tensor("') + 8
-        b = test.index(':0",')
-        param_name = test[a:b]
+        a = preds.index('Tensor("') + 8
+        b = preds.index(':0",')
+        param_name = preds[a:b]
         saver = tf.train.Saver()
         if os.path.isdir(checkpoint_dir):
             ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
