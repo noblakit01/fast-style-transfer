@@ -60,11 +60,11 @@ def main():
     opts = parser.parse_args()
     #check_opts(opts)
 
-    model = coremltools.models.MLModel('../models/mlmodel/temp.mlmodel')
+    model = coremltools.models.MLModel('../style-transfer-models/mlmodel/temp.mlmodel')
     spec = model.get_spec()
     convert_multiarray_output_to_image(spec,'add_37__0',is_bgr=False)
     newModel = coremltools.models.MLModel(spec)
-    newModel.save('../models/mlmodel/' + opts.mlmodel_output + '.mlmodel')
+    newModel.save('../style-transfer-models/mlmodel/' + opts.mlmodel_output + '.mlmodel')
 
 if __name__ == '__main__':
     main()

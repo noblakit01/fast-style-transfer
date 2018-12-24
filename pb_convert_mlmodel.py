@@ -21,8 +21,8 @@ def main():
     opts = parser.parse_args()
     #check_opts(opts)
 
-    tf_converter.convert(tf_model_path = '../models/pb/' + opts.pb_output + '.pb',
-                     mlmodel_path = '../models/mlmodel/temp.mlmodel',
+    tf_converter.convert(tf_model_path = '../style-transfer-models/pb/' + opts.pb_output + '.pb',
+                     mlmodel_path = '../style-transfer-models/mlmodel/temp.mlmodel',
                      output_feature_names = ['add_37:0'],
                      ## Note found this after running a conversion the first time
                      image_input_names = ['outputImage'])
