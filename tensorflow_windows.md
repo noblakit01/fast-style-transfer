@@ -17,6 +17,7 @@
 
 *If you want tensorflow with GPU package, you have to install CUDA*
 * Get the cuDNN v6.0 (maybe cuDNN v5.1) for CUDA 8.0 from [here](https://www.python.org/downloads/release/python-352/) - put it under your users folder or in another known location (you will need this in your path)
+* Add cuDNN directions and it's `lib` `bin` to %PATH% of windows.
 * Get CUDA 8.0 x86_64 from [here]
 
 ## Installation `fast-style-transfer` requirements: 
