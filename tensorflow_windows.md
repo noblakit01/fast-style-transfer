@@ -2,18 +2,18 @@
 
 ## Step to step
 
-* 1. Install python 3.5 from python.org
-* 2. Install pip:
+* Install python 3.5 from python.org
+* Install pip:
   * To install pip, securely download get-pip.py:
-  > curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    > curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   * Then run the following:
-  > python get-pip.py
+    > python get-pip.py
   * References: [URL](https://pip.pypa.io/en/stable/installing/)
-* 3. Install tensorflow via pip:
+* Install tensorflow via pip:
   * CPU-only:
-  > pip install tensorflow
+    > pip install tensorflow
   * GPU package for CUDA-enabled GPU cards:
-  > pip install tensorflow-gpu
+    > pip install tensorflow-gpu
 
 *If you want tensorflow with GPU package, you have to install CUDA*
 * Get the cuDNN v6.0 (maybe cuDNN v5.1) for CUDA 8.0 from [here](https://www.python.org/downloads/release/python-352/) - put it under your users folder or in another known location (you will need this in your path)
@@ -24,11 +24,11 @@
 * Install Pillow 3.4.2, scipy 0.18.1, numpy 1.11.2
 * Install moviepy:
   * Install `ez_setup`:
-  > pip install ez_setup
+    > pip install ez_setup
   * Install `setup_tools`:
-  > pip install --upgrade setuptools
+    > pip install --upgrade setuptools
   * Install `moviepy`:
-  > pip install moviepy
+    > pip install moviepy
 
 ## Data & source to style model
 
@@ -39,9 +39,9 @@
 * Download http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat and save at `data`
 * New folder `checkpoint`, used to contain checkpoint
 * Run: 
-> python style.py --style style/painting_1.jpg --checkpoint-dir checkpoint
+  > python style.py --style style/painting_1.jpg --checkpoint-dir checkpoint
 
-* Waiting for 12 hours -> 1 months.
+* **Waiting for 12 hours -> 6 months.**
 
 ## Known Issues
 
