@@ -1,46 +1,58 @@
 # Tensorflow Windows Installation
 
-* If you are trying to install it on a windows machine you need to have a 64-bit version of python 3.5. This is the only way to actually install it. From the website:
+## Step to step
+
+* 1. Install python 3.5 from python.org
+* 2. Install pip:
+  * To install pip, securely download get-pip.py:
+  > curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  * Then run the following:
+  > python get-pip.py
+  * References: [URL](https://pip.pypa.io/en/stable/installing/)
+* 3. Install tensorflow via pip:
+  * CPU-only:
+  > pip install tensorflow
+  * GPU package for CUDA-enabled GPU cards:
+  > pip install tensorflow-gpu
+
+*If you want tensorflow with GPU package, you have to install CUDA*
+* Get the cuDNN v6.0 (maybe cuDNN v5.1) for CUDA 8.0 from [here](https://www.python.org/downloads/release/python-352/) - put it under your users folder or in another known location (you will need this in your path)
+* Get CUDA 8.0 x86_64 from [here]
+
+## Installation `fast-style-transfer` requirements: 
+
+* Install Pillow 3.4.2, scipy 0.18.1, numpy 1.11.2
+* Install moviepy:
+  * Install `ez_setup`:
+  > pip install ez_setup
+  * Install `setup_tools`:
+  > pip install --upgrade setuptools
+  * Install `moviepy`:
+  > pip install moviepy
+
+## Data & source to style model
+
+* Clone this repo: `git clone https://github.com/lengstrom/fast-style-transfer.git`
+* New folder `data`
+* Download training data from http://msvocds.blob.core.windows.net/coco2014/train2014.zip
+* Expanding `train2014.zip` to `data` folder. Expact path: `data/train2014` is data path.
+* Download http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat and save at `data`
+* New folder `checkpoint`, used to contain checkpoint
+* Run: 
+> python style.py --style style/painting_1.jpg --checkpoint-dir checkpoint
+
+* Waiting for 12 hours -> 1 months.
+
+## Known Issues
+
+### https://stackoverflow.com/a/41724425/3857373
+
+If you are trying to install it on a windows machine you need to have a 64-bit version of python 3.5. This is the only way to actually install it. From the website:
 > TensorFlow supports only 64-bit Python 3.5 on Windows. We have tested the pip packages with the following distributions of Python:
 > 
 > Python 3.5 from Anaconda
 > 
 > Python 3.5 from python.org.
-
-References: [here](https://stackoverflow.com/a/41724425/3857373)
-
-## Choose builds:
-
-### Official Builds
-
-| Build Type      | Status | Artifacts |
-| ---             | ---    | ---       |
-| **Linux CPU**   | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-cc.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-cc.html) | [pypi](https://pypi.org/project/tf-nightly/) |
-| **Linux GPU**   | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-gpu-py3.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-gpu-py3.html) | [pypi](https://pypi.org/project/tf-nightly-gpu/) |
-| **Linux XLA**   | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-xla.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/ubuntu-xla.html) | TBA |
-| **MacOS**       | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/macos-py2-cc.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/macos-py2-cc.html) | [pypi](https://pypi.org/project/tf-nightly/) |
-| **Windows CPU** | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/windows-cpu.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/windows-cpu.html) | [pypi](https://pypi.org/project/tf-nightly/) |
-| **Windows GPU** | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/windows-gpu.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/windows-gpu.html) | [pypi](https://pypi.org/project/tf-nightly-gpu/) |
-| **Android**     | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/android.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/android.html) | [![Download](https://api.bintray.com/packages/google/tensorflow/tensorflow/images/download.svg)](https://bintray.com/google/tensorflow/tensorflow/_latestVersion) |
-| **Raspberry Pi 0 and 1** | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi01-py2.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi01-py2.html) [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi01-py3.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi01-py3.html) | [Py2](https://storage.googleapis.com/tensorflow-nightly/tensorflow-1.10.0-cp27-none-linux_armv6l.whl) [Py3](https://storage.googleapis.com/tensorflow-nightly/tensorflow-1.10.0-cp34-none-linux_armv6l.whl) |
-| **Raspberry Pi 2 and 3** | [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi23-py2.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi23-py2.html) [![Status](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi23-py3.svg)](https://storage.googleapis.com/tensorflow-kokoro-build-badges/rpi23-py3.html) | [Py2](https://storage.googleapis.com/tensorflow-nightly/tensorflow-1.10.0-cp27-none-linux_armv7l.whl) [Py3](https://storage.googleapis.com/tensorflow-nightly/tensorflow-1.10.0-cp34-none-linux_armv7l.whl) |
-
-
-### Community Supported Builds
-
-Build Type                                                                                                                                                                                      | Status                                                                                                                                                                                   | Artifacts
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------
-**IBM s390x**                                                                                                                                                                                   | [![Build Status](http://ibmz-ci.osuosl.org/job/TensorFlow_IBMZ_CI/badge/icon)](http://ibmz-ci.osuosl.org/job/TensorFlow_IBMZ_CI/)                                                        | TBA
-**Linux ppc64le CPU** Nightly                                                                                                                                                                   | [![Build Status](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Build/badge/icon)](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Build/)                                  | [Nightly](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Nightly_Artifact/)
-**Linux ppc64le CPU** Stable Release                                                                                                                                                            | [![Build Status](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Release_Build/badge/icon)](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Release_Build/)                  | [Release](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_CPU_Release_Build/)
-**Linux ppc64le GPU** Nightly                                                                                                                                                                   | [![Build Status](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Build/badge/icon)](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Build/)                                  | [Nightly](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Nightly_Artifact/)
-**Linux ppc64le GPU** Stable Release                                                                                                                                                            | [![Build Status](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Release_Build/badge/icon)](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Release_Build/)                  | [Release](https://powerci.osuosl.org/job/TensorFlow_PPC64LE_GPU_Release_Build/)
-**Linux CPU with Intel® MKL-DNN** Nightly                                                                                                                                                       | [![Build Status](https://tensorflow-ci.intel.com/job/tensorflow-mkl-linux-cpu/badge/icon)](https://tensorflow-ci.intel.com/job/tensorflow-mkl-linux-cpu/)                                | [Nightly](https://tensorflow-ci.intel.com/job/tensorflow-mkl-build-whl-nightly/)
-**Linux CPU with Intel® MKL-DNN** Python 2.7<br> **Linux CPU with Intel® MKL-DNN** Python 3.4<br> **Linux CPU with Intel® MKL-DNN** Python 3.5<br> **Linux CPU with Intel® MKL-DNN** Python 3.6 | [![Build Status](https://tensorflow-ci.intel.com/job/tensorflow-mkl-build-release-whl/badge/icon)](https://tensorflow-ci.intel.com/job/tensorflow-mkl-build-release-whl/lastStableBuild) | [1.12.0 py2.7](https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.12.0-cp27-cp27mu-linux_x86_64.whl)<br>[1.12.0 py3.4](https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.12.0-cp34-cp34m-linux_x86_64.whl)<br>[1.12.0 py3.5](https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.12.0-cp35-cp35m-linux_x86_64.whl)<br>[1.12.0 py3.6](https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl)
-
-References: [Tensorflow github](https://github.com/tensorflow/tensorflow)
-
-## Known Issues
 
 ### No module named "_pywrap_tensorflow"
 
