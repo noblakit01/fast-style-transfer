@@ -1,4 +1,4 @@
-python ../../tensorflow-noblakit01/tensorflow/contrib/lite/python/tflite_convert.py \
+python3 ../../tensorflow-noblakit01/tensorflow/contrib/lite/python/tflite_convert.py \
 --graph_def_file=../style-transfer-models/pb/$1.pb \
 --output_file=../style-transfer-models/tflites/$1.tflite \
 --input_format=TENSORFLOW_GRAPHDEF \
