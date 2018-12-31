@@ -1,0 +1,24 @@
+
+# Directories and files to ignore when uploading code to floyd
+
+.git
+.eggs
+eggs
+lib
+lib64
+parts
+sdist
+var
+*.pyc
+*.swp
+.DS_Store
+examples
+checkpoint
+data
+inputs
+outputs
+*.md
+*.zip
+ckpt_to_mlmodel.sh
+ckp_to_tflite.sh
+pb_to_tflite.sh

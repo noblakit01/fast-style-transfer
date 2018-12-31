@@ -1,0 +1,1 @@
+floyd run --env tensorflow-1.5 --data narenst/datasets/coco-train-2014/1:images --data floydhub/datasets/imagenet-vgg-verydeep-19:vgg --follow "bash floydsetup.sh && python style.py --train-path /images/train2014 --vgg-path /vgg/imagenet-vgg-verydeep-19.mat --style style/painting_1.jpg --checkpoint-dir checkpoint"
