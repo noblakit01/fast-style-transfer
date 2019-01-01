@@ -33,6 +33,7 @@ Install via pip (this will install tensorflow-gpu lastest release):
 
 After installing tersorflow-gpu, we can check it by
 > python
+
 then type:
 > import tensorflow as tf
 
@@ -45,6 +46,7 @@ Then I uninstall current tensorflow-gpu and install tensorflow-gpu at version 1.
 
 Then I check the tensorflow module again:
 > python
+
 > import tensorflow as tf
 
 At this point, it show the issues:
