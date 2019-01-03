@@ -18,7 +18,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         batch_size = 1
     mod = len(content_targets) % batch_size
     if mod > 0:
-        print("Train set has been trimmed slightly..")
+        print("Train set has been trimmed slightly.. %d" % mod)
         content_targets = content_targets[:-mod] 
 
     style_features = {}
@@ -96,13 +96,15 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         for epoch in range(epochs):
             num_examples = len(content_targets)
             iterations = 0
+            print('num_examples: %d' % num_examples)
             while iterations * batch_size < num_examples:
                 start_time = time.time()
                 curr = iterations * batch_size
                 step = curr + batch_size
                 X_batch = np.zeros(batch_shape, dtype=np.float32)
+                print('cur: %d step %d' % (curr, step))
                 for j, img_p in enumerate(content_targets[curr:step]):
-                   X_batch[j] = get_img(img_p, (256,256,3)).astype(np.float32)
+                   X_batch[j] = get_img(img_p).astype(np.float32)
 
                 iterations += 1
                 assert X_batch.shape[0] == batch_size
@@ -116,11 +118,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 delta_time = end_time - start_time
                 if debug:
                     print("UID: %s, batch time: %s" % (uid, delta_time))
-                is_print_iter = int(iterations) % print_iterations == 0
-                if slow:
-                    is_print_iter = epoch % print_iterations == 0
                 is_last = epoch == epochs - 1 and iterations * batch_size >= num_examples
-                should_print = is_print_iter or is_last
+                should_print = is_last
                 if should_print:
                     to_get = [style_loss, content_loss, tv_loss, loss, preds]
                     test_feed_dict = {
@@ -133,8 +132,9 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                     if slow:
                        _preds = vgg.unprocess(_preds)
                     else:
+                       print('save path %s' % save_path)
                        saver = tf.train.Saver()
-                       res = saver.save(sess, save_path)
+                       saver.save(sess, save_path)
                     yield(_preds, losses, iterations, epoch)
 
 def _tensor_size(tensor):

@@ -1,1 +1,3 @@
-python style.py --train-path data/bin/train2014/train2014 --style style/painting_1.jpg --test test/chicago.jpg --test-dir testdir --checkpoint-dir checkpoint --batch-size 3
+python style.py --train-path data/bin/train2014/train2014 --style style/painting_1.jpg --test test/chicago.jpg --test-dir testdir --checkpoint-dir checkpoint --batch-size 4
+
+python style.py --train-path data/train2014 --style style/painting_1.jpg --checkpoint-dir checkpoint --batch-size 3

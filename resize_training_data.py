@@ -3,8 +3,8 @@ sys.path.insert(0, 'src')
 from argparse import ArgumentParser
 from utils import save_img, get_img, exists, list_files
 
-TRAIN_PATH = 'data/train2014_all'
-RESULT_PATH = 'data/train2014-resized'
+TRAIN_PATH = 'data/bin/train2014/train2014'
+RESULT_PATH = 'data/train2014'
 
 def build_parser():
     parser = ArgumentParser()
@@ -33,7 +33,7 @@ def main():
         in_path = os.path.join(options.train_path, x)
         out_path = os.path.join(options.result_path, x)
         img = get_img(in_path, (256,256,3))
-        ##save_img(out_path, img)
+        save_img(out_path, img)
 
 if __name__ == '__main__':
     main()
