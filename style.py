@@ -94,6 +94,7 @@ def check_opts(opts):
     if opts.test or opts.test_dir:
         exists(opts.test, "test img not found!")
         exists(opts.test_dir, "test directory not found!")
+        assert opts.test_dir != False
     exists(opts.vgg_path, "vgg network data not found!")
     assert opts.epochs > 0
     assert opts.batch_size > 0
@@ -151,7 +152,6 @@ def main():
         to_print = (style_loss, content_loss, tv_loss)
         print('style: %s, content:%s, tv: %s' % to_print)
         if options.test:
-            assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
             if not options.slow:
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
