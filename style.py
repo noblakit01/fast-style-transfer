@@ -85,6 +85,16 @@ def build_parser():
                         help='learning rate (default %(default)s)',
                         metavar='LEARNING_RATE', default=LEARNING_RATE)
 
+    parser.add_argument('--last-epoch', type=int,
+                        dest='last_epoch',
+                        help='last epoch rate (default FALSE)',
+                        metavar='LAST_EPOCH', default=False)
+
+    parser.add_argument('--last-iterations', type=int,
+                        dest='last_iterations',
+                        help='last iterations rate (default FALSE)',
+                        metavar='LAST_ITERATIONS', default=False)                                     
+
     return parser
 
 def check_opts(opts):
@@ -127,7 +137,9 @@ def main():
         "print_iterations":options.checkpoint_iterations,
         "batch_size":options.batch_size,
         "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
-        "learning_rate":options.learning_rate
+        "learning_rate":options.learning_rate,
+        "last_epoch": options.last_epoch,
+        "last_iterations": options.last_iterations
     }
 
     if options.slow:
