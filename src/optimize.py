@@ -12,7 +12,7 @@ DEVICES = 'CUDA_VISIBLE_DEVICES'
 # np arr, np arr
 def optimize(content_targets, style_target, content_weight, style_weight,
              tv_weight, vgg_path, epochs=2, print_iterations=1000,
-             batch_size=4, save_path='saver/fns.ckpt', slow=False,
+             batch_size=4, save_path='saver/fns.ckpt', log_dir='logdirs', slow=False,
              learning_rate=1e-3,
              last_epoch=False, last_iterations=False):
     debug = False         
@@ -90,30 +90,66 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         # overall loss
         loss = content_loss + style_loss + tv_loss
 
-        train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+        # add summary for each loss
+        tf.summary.scalar('content_loss', content_loss)
+        tf.summary.scalar('style_loss', style_loss)
+        tf.summary.scalar('tv_loss', tv_loss)
+        tf.summary.scalar('total_loss', loss)
+
+        global_step = tf.train.get_or_create_global_step()
+        trainable_variables = tf.trainable_variables()
+        grads = tf.gradients(loss, trainable_variables)
+
+        optimizer = tf.train.AdamOptimizer(learning_rate)
+        train_op = optimizer.apply_gradients(zip(grads, trainable_variables), global_step=global_step, name='train_step')
+
+        merged_summary_op = tf.summary.merge_all()
+        summary_writer = tf.summary.FileWriter(log_dir, graph=tf.get_default_graph())
+
         sess.run(tf.global_variables_initializer())
-        import random
-        uid = random.randint(1, 100)
-
+        
         saver = tf.train.Saver()
-        print('last_epoch %d last_iterations %d' % (last_epoch, last_iterations))
+        checkpoint_exists = True
 
-        continueTraining = last_epoch != False or last_iterations != False
-        if continueTraining:
-            saver.restore(sess, save_path)
-            iterations = last_iterations
-            epoch = last_epoch
+        try:
+            ckpt_state = tf.train.get_checkpoint_state(save_path)
+        except tf.errors.OutOfRangeError as e:
+            print('Cannot restore checkpoint: %s' % e)
+            checkpoint_exists = False
+        if not (ckpt_state and ckpt_state.model_checkpoint_path):
+            print('No model to restore at %s' % save_path)
+            checkpoint_exists = False
+
+        if checkpoint_exists:
+            print('Loading checkpoint %s' % ckpt_state.model_checkpoint_path)
+            tf.logging.info('Loading checkpoint %s' % ckpt_state.model_checkpoint_path)
+            saver.restore(sess, ckpt_state.model_checkpoint_path)
+
+        num_examples = len(content_targets)
+
+        if checkpoint_exists:
+            iterations = sess.run(global_step)
+            epoch = (iterations * batch_size) // num_examples
+            iterations = iterations - epoch * (num_examples // batch_size)
         else:
             epoch = 0
             iterations = 0
 
-        for epoch in range(epochs):
-            num_examples = len(content_targets)
+        import random
+        uid = random.randint(1, 100)
+
+        print('UID: %s' % uid)
+        print('EPOCH: %s / %s' % (epoch, epochs))
+        print('content_weight : %g, style_weight : %g, tv_weight: %g'
+              % (content_weight, style_weight, tv_weight))
+
+        while epoch < epochs:
             print('Start Epoch: %d iterations: %d' % (epoch, iterations))
             while iterations * batch_size < num_examples:
                 start_time = time.time()
                 curr = iterations * batch_size
                 step = curr + batch_size
+                
                 X_batch = np.zeros(batch_shape, dtype=np.float32)
                 #print('epoch: %d cur: %d step %d' % (epoch, curr, step))
                 for j, img_p in enumerate(content_targets[curr:step]):
@@ -122,13 +158,22 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 iterations += 1
                 assert X_batch.shape[0] == batch_size
 
-                feed_dict = {
+                train_feed_dict = {
                    X_content:X_batch
                 }
 
-                train_step.run(feed_dict=feed_dict)
+                _, summary, L_total, L_content, L_style, L_tv, step = sess.run(
+                    [train_op, merged_summary_op, loss, content_loss, style_loss, tv_loss, global_step],
+                    feed_dict=train_feed_dict)
+                print('epoch : %d, iter : %4d,' % (epoch, step),
+                      'L_total : %g, L_content : %g, L_style : %g, L_tv : %g'
+                      % (L_total, L_content, L_style, L_tv))
+
+                summary_writer.add_summary(summary, iterations)
+                
                 end_time = time.time()
                 delta_time = end_time - start_time
+
                 if debug:
                     print("UID: %s, batch time: %s" % (uid, delta_time))
                 
@@ -152,7 +197,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                     else:
                        if is_last:
                            saver = tf.train.Saver(write_version=tf.train.SaverDef.V1)
-                           saver.save(sess, save_path)
+                           saver.save(sess, save_path + '/fns.ckpt')
                            print('saved path %s' % save_path)
                        # New version tf.train.Saver will not save physical file .ckpt anymore, instead
                        # it will save a checkpoint files.
@@ -164,7 +209,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                        # If you want one, use 
                        # saver = tf.train.Saver(write_version=tf.train.SaverDef.V1)
                        # 
-                       saver.save(sess, save_path)
+                       saver.save(sess, save_path + '/fns.ckpt')
                        print('saved epoch: %d iterations: %d step: %d' % (epoch, iterations, step))
                     yield(_preds, losses, iterations, epoch)
 

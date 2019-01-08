@@ -103,3 +103,5 @@ ENV/
 
 # checkpoint
 checkpoint
+train2014.zip
+logdirs

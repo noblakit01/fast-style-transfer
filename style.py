@@ -20,12 +20,17 @@ TRAIN_PATH = 'data/train2014'
 BATCH_SIZE = 4
 DEVICE = '/gpu:0'
 FRAC_GPU = 1
+LOG_DIR = "logdirs"
 
 def build_parser():
     parser = ArgumentParser()
     parser.add_argument('--checkpoint-dir', type=str,
                         dest='checkpoint_dir', help='dir to save checkpoint in',
                         metavar='CHECKPOINT_DIR', required=True)
+
+    parser.add_argument('--log-dir', type=str,
+                        dest='log_dir', help='dir to save logs in',
+                        metavar='LOG_DIR', default=LOG_DIR)
 
     parser.add_argument('--style', type=str,
                         dest='style', help='style image path',
@@ -99,6 +104,7 @@ def build_parser():
 
 def check_opts(opts):
     exists(opts.checkpoint_dir, "checkpoint dir not found!")
+    exists(opts.log_dir, "log dir not found!")
     exists(opts.style, "style path not found!")
     exists(opts.train_path, "train path not found!")
     if opts.test or opts.test_dir:
@@ -136,7 +142,8 @@ def main():
         "epochs":options.epochs,
         "print_iterations":options.checkpoint_iterations,
         "batch_size":options.batch_size,
-        "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
+        "save_path":os.path.abspath(options.checkpoint_dir),
+        "log_dir": os.path.abspath(options.log_dir),
         "learning_rate":options.learning_rate,
         "last_epoch": options.last_epoch,
         "last_iterations": options.last_iterations
