@@ -16,6 +16,7 @@
 - `--style-weight`: Weight of style in loss function. Default: `1e2`.
 - `--tv-weight`: Weight of total variation term in loss function. Default: `2e2`.
 - `--learning-rate`: Learning rate for optimizer. Default: `1e-3`.
+- `--use-tiny-net`: Use faster tiny net defined in transform.py.
 - `--slow`: For debugging loss function. Direct optimization on pixels using Gatys' approach. Uses `test` image as content value, `test_dir` for saving fully optimized images.
 
 
@@ -29,6 +30,8 @@
 - `--device`: Device used to transform image. Default: `/cpu:0`.
 - `--batch-size`: Batch size used to evaluate images. In particular meant for directory transformations. Default: `4`.
 - `--allow-different-dimensions`: Allow different image dimensions. Default: not enabled
+- `--use-tiny-net`: Use faster tiny net defined in transform.py.
+- `--model-path`: Out path of transformed model's pb file. Required.
 
 ## transform_video.py
 `transform_video.py` transforms videos into stylized videos given a style transfer net.

@@ -69,7 +69,12 @@ def ffwd_video(path_in, path_out, checkpoint_dir, device_t='/gpu:0', batch_size=
 
 
 # get img_shape
-def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
+def ffwd(data_in,
+         paths_out,
+         checkpoint_dir,
+         device_t='/cpu:0',
+         batch_size=4,
+         is_tiny_net=False):
     assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
     if is_paths:
@@ -89,8 +94,10 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
         batch_shape = (batch_size,) + img_shape
         img_placeholder = tf.placeholder(tf.float32, shape=batch_shape,
                                          name='img_placeholder')
-
-        preds = transform.net(img_placeholder)
+        if is_tiny_net:
+            preds = transform.tiny_net(img_placeholder)
+        else:
+            preds = transform.net(img_placeholder)
         saver = tf.train.Saver()
         if os.path.isdir(checkpoint_dir):
             ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
@@ -124,15 +131,28 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
         remaining_in = data_in[num_iters*batch_size:]
         remaining_out = paths_out[num_iters*batch_size:]
     if len(remaining_in) > 0:
-        ffwd(remaining_in, remaining_out, checkpoint_dir, 
-            device_t=device_t, batch_size=1)
+        ffwd(remaining_in, remaining_out, checkpoint_dir,
+             device_t=device_t, batch_size=1,
+             is_tiny_net=is_tiny_net)
 
-def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0'):
+
+def ffwd_to_img(in_path,
+                out_path,
+                checkpoint_dir,
+                device='/cpu:0',
+                use_tiny_net=False,):
     paths_in, paths_out = [in_path], [out_path]
-    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device)
+    ffwd(paths_in,
+         paths_out,
+         checkpoint_dir,
+         batch_size=1,
+         device_t=device,
+         is_tiny_net=use_tiny_net)
 
-def ffwd_different_dimensions(in_path, out_path, checkpoint_dir, 
-            device_t=DEVICE, batch_size=4):
+
+def ffwd_different_dimensions(in_path, out_path, checkpoint_dir, device_t=DEVICE,
+                              batch_size=1,
+                              use_tiny_net=False):
     in_path_of_shape = defaultdict(list)
     out_path_of_shape = defaultdict(list)
     for i in range(len(in_path)):
@@ -143,8 +163,13 @@ def ffwd_different_dimensions(in_path, out_path, checkpoint_dir,
         out_path_of_shape[shape].append(out_image)
     for shape in in_path_of_shape:
         print('Processing images of shape %s' % shape)
-        ffwd(in_path_of_shape[shape], out_path_of_shape[shape], 
-            checkpoint_dir, device_t, batch_size)
+        ffwd(in_path_of_shape[shape],
+             out_path_of_shape[shape],
+             checkpoint_dir,
+             device_t,
+             batch_size,
+             is_tiny_net=use_tiny_net)
+
 
 def build_parser():
     parser = ArgumentParser()
@@ -174,7 +199,12 @@ def build_parser():
                         dest='allow_different_dimensions', 
                         help='allow different image dimensions')
 
+    parser.add_argument('--use-tiny-net', action='store_true',
+                        dest='use_tiny_net',
+                        help='use tiny net')
+
     return parser
+
 
 def check_opts(opts):
     exists(opts.checkpoint_dir, 'Checkpoint not found!')
@@ -182,6 +212,7 @@ def check_opts(opts):
     if os.path.isdir(opts.out_path):
         exists(opts.out_path, 'out dir not found!')
         assert opts.batch_size > 0
+
 
 def main():
     parser = build_parser()
@@ -196,17 +227,26 @@ def main():
             out_path = opts.out_path
 
         ffwd_to_img(opts.in_path, out_path, opts.checkpoint_dir,
-                    device=opts.device)
+                    device=opts.device, use_tiny_net=opts.use_tiny_net)
     else:
         files = list_files(opts.in_path)
         full_in = [os.path.join(opts.in_path,x) for x in files]
         full_out = [os.path.join(opts.out_path,x) for x in files]
         if opts.allow_different_dimensions:
-            ffwd_different_dimensions(full_in, full_out, opts.checkpoint_dir, 
-                    device_t=opts.device, batch_size=opts.batch_size)
+            ffwd_different_dimensions(full_in,
+                                      full_out,
+                                      opts.checkpoint_dir,
+                                      device_t=opts.device,
+                                      batch_size=opts.batch_size,
+                                      use_tiny_net=opts.use_tiny_net)
         else :
-            ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device,
-                    batch_size=opts.batch_size)
+            ffwd(full_in,
+                 full_out,
+                 opts.checkpoint_dir,
+                 device_t=opts.device,
+                 batch_size=opts.batch_size,
+                 is_tiny_net=opts.use_tiny_net)
+
 
 if __name__ == '__main__':
     main()

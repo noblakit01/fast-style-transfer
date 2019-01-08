@@ -17,8 +17,8 @@ CHECKPOINT_DIR = 'checkpoints'
 CHECKPOINT_ITERATIONS = 2000
 VGG_PATH = 'data/imagenet-vgg-verydeep-19.mat'
 TRAIN_PATH = 'data/train2014'
-BATCH_SIZE = 4
-DEVICE = '/gpu:0'
+BATCH_SIZE = 5
+DEVICE = '/cpu:0'
 FRAC_GPU = 1
 LOG_DIR = "logdirs"
 
@@ -26,7 +26,7 @@ def build_parser():
     parser = ArgumentParser()
     parser.add_argument('--checkpoint-dir', type=str,
                         dest='checkpoint_dir', help='dir to save checkpoint in',
-                        metavar='CHECKPOINT_DIR', required=True)
+                        metavar='CHECKPOINT_DIR', default=CHECKPOINT_DIR)
 
     parser.add_argument('--log-dir', type=str,
                         dest='log_dir', help='dir to save logs in',
@@ -47,6 +47,10 @@ def build_parser():
     parser.add_argument('--test-dir', type=str,
                         dest='test_dir', help='test image save dir',
                         metavar='TEST_DIR', default=False)
+
+    parser.add_argument('--use-tiny-net', dest='use_tiny_net', action='store_true',
+                        help='use tiny net defined in transform.py or not',
+                        default=False)
 
     parser.add_argument('--slow', dest='slow', action='store_true',
                         help='gatys\' approach (for debugging, not supported)',
@@ -90,16 +94,6 @@ def build_parser():
                         help='learning rate (default %(default)s)',
                         metavar='LEARNING_RATE', default=LEARNING_RATE)
 
-    parser.add_argument('--last-epoch', type=int,
-                        dest='last_epoch',
-                        help='last epoch rate (default FALSE)',
-                        metavar='LAST_EPOCH', default=False)
-
-    parser.add_argument('--last-iterations', type=int,
-                        dest='last_iterations',
-                        help='last iterations rate (default FALSE)',
-                        metavar='LAST_ITERATIONS', default=False)                                     
-
     return parser
 
 def check_opts(opts):
@@ -120,6 +114,7 @@ def check_opts(opts):
     assert opts.style_weight >= 0
     assert opts.tv_weight >= 0
     assert opts.learning_rate >= 0
+
 
 def _get_files(img_dir):
     files = list_files(img_dir)
@@ -145,8 +140,7 @@ def main():
         "save_path":os.path.abspath(options.checkpoint_dir),
         "log_dir": os.path.abspath(options.log_dir),
         "learning_rate":options.learning_rate,
-        "last_epoch": options.last_epoch,
-        "last_iterations": options.last_iterations
+        "use_tiny_net": options.use_tiny_net,
     }
 
     if options.slow:
@@ -175,12 +169,15 @@ def main():
             if not options.slow:
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
                 evaluate.ffwd_to_img(options.test,preds_path,
-                                     options.checkpoint_dir)
+                                     options.checkpoint_dir,
+                                         use_tiny_net=options.use_tiny_net)
             else:
                 save_img(preds_path, img)
+
     ckpt_dir = options.checkpoint_dir
     cmd_text = 'python evaluate.py --checkpoint %s ...' % ckpt_dir
     print("Training complete. For evaluation:\n    `%s`" % cmd_text)
+
 
 if __name__ == '__main__':
     main()

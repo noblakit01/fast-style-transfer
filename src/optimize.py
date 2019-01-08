@@ -9,13 +9,12 @@ STYLE_LAYERS = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1')
 CONTENT_LAYER = 'relu4_2'
 DEVICES = 'CUDA_VISIBLE_DEVICES'
 
+
 # np arr, np arr
 def optimize(content_targets, style_target, content_weight, style_weight,
              tv_weight, vgg_path, epochs=2, print_iterations=1000,
-             batch_size=4, save_path='saver/fns.ckpt', log_dir='logdirs', slow=False,
-             learning_rate=1e-3,
-             last_epoch=False, last_iterations=False):
-    debug = False         
+             batch_size=4, save_path='saver', log_dir='logdirs', slow=False,
+             learning_rate=1e-3, use_tiny_net=True):
     if slow:
         batch_size = 1
     mod = len(content_targets) % batch_size
@@ -25,7 +24,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
 
     style_features = {}
 
-    batch_shape = (batch_size,256,256,3)
+    batch_shape = (batch_size, 256, 256, 3)
     style_shape = (1,) + style_target.shape
     print(style_shape)
     
@@ -56,7 +55,10 @@ def optimize(content_targets, style_target, content_weight, style_weight,
             )
             preds_pre = preds
         else:
-            preds = transform.net(X_content/255.0)
+            if use_tiny_net:
+                preds = transform.tiny_net(X_content/255.0)
+            else:
+                preds = transform.net(X_content/255.0)
             preds_pre = vgg.preprocess(preds)
 
         net = vgg.net(vgg_path, preds_pre)
@@ -86,7 +88,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         y_tv = tf.nn.l2_loss(preds[:,1:,:,:] - preds[:,:batch_shape[1]-1,:,:])
         x_tv = tf.nn.l2_loss(preds[:,:,1:,:] - preds[:,:,:batch_shape[2]-1,:])
         tv_loss = tv_weight*2*(x_tv/tv_x_size + y_tv/tv_y_size)/batch_size
-        
+
         # overall loss
         loss = content_loss + style_loss + tv_loss
 
@@ -107,7 +109,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         summary_writer = tf.summary.FileWriter(log_dir, graph=tf.get_default_graph())
 
         sess.run(tf.global_variables_initializer())
-        
+
         saver = tf.train.Saver()
         checkpoint_exists = True
 
@@ -144,12 +146,11 @@ def optimize(content_targets, style_target, content_weight, style_weight,
               % (content_weight, style_weight, tv_weight))
 
         while epoch < epochs:
-            print('Start Epoch: %d iterations: %d' % (epoch, iterations))
             while iterations * batch_size < num_examples:
-                start_time = time.time()
+                #start_time = time.time()
                 curr = iterations * batch_size
                 step = curr + batch_size
-                
+
                 X_batch = np.zeros(batch_shape, dtype=np.float32)
                 #print('epoch: %d cur: %d step %d' % (epoch, curr, step))
                 for j, img_p in enumerate(content_targets[curr:step]):
@@ -159,7 +160,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 assert X_batch.shape[0] == batch_size
 
                 train_feed_dict = {
-                   X_content:X_batch
+                   X_content: X_batch
                 }
 
                 _, summary, L_total, L_content, L_style, L_tv, step = sess.run(
@@ -170,12 +171,11 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                       % (L_total, L_content, L_style, L_tv))
 
                 summary_writer.add_summary(summary, iterations)
-                
-                end_time = time.time()
-                delta_time = end_time - start_time
 
-                if debug:
-                    print("UID: %s, batch time: %s" % (uid, delta_time))
+                #end_time = time.time()
+                #delta_time = end_time - start_time
+
+                #print("UID: %s, batch time: %s" % (uid, delta_time))
                 
                 is_last_iteration = iterations * batch_size >= num_examples
                 is_print_iter = int(iterations) % print_iterations == 0 or is_last_iteration
@@ -189,7 +189,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                        X_content:X_batch
                     }
 
-                    tup = sess.run(to_get, feed_dict = test_feed_dict)
+                    tup = sess.run(to_get, feed_dict=test_feed_dict)
                     _style_loss,_content_loss,_tv_loss,_loss,_preds = tup
                     losses = (_style_loss, _content_loss, _tv_loss, _loss)
                     if slow:
@@ -212,9 +212,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                        saver.save(sess, save_path + '/fns.ckpt')
                        print('saved epoch: %d iterations: %d step: %d' % (epoch, iterations, step))
                     yield(_preds, losses, iterations, epoch)
-
-            iterations = 0
             epoch += 1
+            iterations = 0
 
 def _tensor_size(tensor):
     from operator import mul
