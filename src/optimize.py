@@ -166,9 +166,9 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 _, summary, L_total, L_content, L_style, L_tv, step = sess.run(
                     [train_op, merged_summary_op, loss, content_loss, style_loss, tv_loss, global_step],
                     feed_dict=train_feed_dict)
-                print('epoch : %d, iter : %4d,' % (epoch, step),
-                      'L_total : %g, L_content : %g, L_style : %g, L_tv : %g'
-                      % (L_total, L_content, L_style, L_tv))
+                #print('epoch : %d, iter : %4d,' % (epoch, step),
+                #      'L_total : %g, L_content : %g, L_style : %g, L_tv : %g'
+                #      % (L_total, L_content, L_style, L_tv))
 
                 summary_writer.add_summary(summary, iterations)
 
