@@ -25,7 +25,7 @@ def main():
                      mlmodel_path = '../style-transfer-models/mlmodel/temp.mlmodel',
                      output_feature_names = ['add_37:0'],
                      ## Note found this after running a conversion the first time
-                     image_input_names = ['img_placeholder__0'])
+                     input_name_shape_dict = {'img_placeholder__0' : [None, None, None, 3]})
 
 if __name__ == '__main__':
     main()
